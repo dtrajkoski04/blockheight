@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Holesky Block Height</title>
+
+  <!-- Load ethers.js (UMD build) -->
+  <script src="https://cdn.jsdelivr.net/npm/ethers@6.7.0/dist/ethers.umd.min.js"
+          integrity="sha384-o6mOls8fomv0VZqpd/XFlmnX0vJve8yxH2a0Skl7pXkIQmfG4Oo5RA8Wv+3hrhpr"
+          crossorigin="anonymous"></script>
+
+  <style>
+    body { font-family: sans-serif; margin: 3rem auto; max-width: 32rem; text-align: center; }
+    button { padding: 0.6rem 1.2rem; font-size: 1rem; cursor: pointer; }
+    #height { margin-top: 1.5rem; font-size: 1.25rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+
+  <h1>Holesky Block Height</h1>
+
+  <button id="btn">Show current block</button>
+  <div id="height">—</div>
+
+  <script>
+    const btn     = document.getElementById('btn');
+    const output  = document.getElementById('height');
+
+    btn.addEventListener('click', async () => {
+      try {
+        // 1️⃣ Ask MetaMask to connect (if not already)
+        if (!window.ethereum) {
+          alert('MetaMask (or another injected wallet) is required.');
+          return;
+        }
+        await window.ethereum.request({ method: 'eth_requestAccounts' });
+
+        // 2️⃣ Build an ethers.js provider that talks to the wallet
+        const provider = new ethers.BrowserProvider(window.ethereum);
+
+        // 3️⃣ Ensure we are on Holesky (chainId 17000)
+        const { chainId } = await provider.getNetwork();
+        if (Number(chainId) !== 17000) {
+          alert('Please switch MetaMask to the Holesky testnet first.');
+          return;
+        }
+
+        // 4️⃣ Fetch the latest block number
+        const block = await provider.getBlockNumber();
+
+        // 5️⃣ Display it
+        output.textContent = `Current Holesky block: ${block.toLocaleString('en-US')}`;
+      } catch (err) {
+        console.error(err);
+        output.textContent = 'Error: ' + (err.message ?? err);
+      }
+    });
+  </script>
+</body>
+</html>
